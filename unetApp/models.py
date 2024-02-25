@@ -10,6 +10,7 @@ def upload_path(instace, filename):
 
 class Images(models.Model):
     unMaskedImage = models.ImageField(blank=True, null=True,upload_to=upload_path) #upload_path function determines the upload path for the images.
+    predictedMask = models.ImageField(blank=True, null=True, upload_to='images/masked/')
     
     
 #The upload_to parameter in Django's ImageField is optional. 
