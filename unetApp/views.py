@@ -41,6 +41,8 @@ import os
 import io
 from PIL import Image
 from django.core.files.base import ContentFile
+from django.urls import reverse
+
 
 os.environ['SM_FRAMEWORK'] = 'tf.keras'
 import segmentation_models as sm
@@ -170,10 +172,30 @@ class ImageViewSet(viewsets.ModelViewSet):
         predicted_mask.save(masked_image_path)
 
         # Save the predicted mask file path to the database
-        Images.objects.create(unMaskedImage=uploaded_image, predictedMask=masked_image_path)
+        instance = Images.objects.create(unMaskedImage=uploaded_image, predictedMask=masked_image_path)
         # Images.objects.create(unMaskedImage=uploaded_image, predictedMask=predicted_mask_file)
 
-        # Serialize the image and mask to send back to the frontend
-        serializer = ImageSerializer(
-            {'unMaskedImage': uploaded_image, 'predictedMask': predicted_mask})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # # Serialize the image and mask to send back to the frontend
+        # serializer = ImageSerializer(
+        #     {'unMaskedImage': uploaded_image, 'predictedMask': predicted_mask})
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        
+        # # Serialize the image and mask to send back to the frontend
+        # serializer = ImageSerializer(
+        #     {'unMaskedImageUrl': request.build_absolute_uri(unmasked_image_path),
+        #     'predictedMaskUrl': request.build_absolute_uri(masked_image_path)})
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # serializer = self.get_serializer(data=request.data, context={'request': request})
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+        # Serialize the instance and include the predicted mask URL in the response
+        serializer = self.get_serializer(instance)
+        response_data = serializer.data
+        response_data['predictedMaskUrl'] = request.build_absolute_uri(instance.predictedMask.url)
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
