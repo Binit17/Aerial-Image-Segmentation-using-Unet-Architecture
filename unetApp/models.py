@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 
 #The upload_path function concatenates the images/unMasked/ directory with the filename. 
 #This means that uploaded images will be stored in the images/unMasked/ directory inside your media root directory.
